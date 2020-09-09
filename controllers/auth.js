@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { emailParams } = require('../helpers/emailParams');
 require('dotenv').config();
 
 console.log(
@@ -37,35 +38,7 @@ exports.register = (req, res) => {
     );
     console.log('TOKEN1:', token);
 
-    const params = {
-      Source: process.env.EMAIL_FROM,
-      Destination: {
-        ToAddresses: [email],
-      },
-      ReplyToAddresses: [process.env.EMAIL_TO],
-      Message: {
-        /* required */
-        Body: {
-          /* required */
-          Html: {
-            Charset: 'UTF-8',
-            Data: `<html><h1>Hello, ${name}
-                Verify your email with the following link:
-                
-                </h1 style="color:blue">
-                <p>${process.env.CLIENT_URL}/auth/activate/${token}</p></html>`,
-          },
-          Text: {
-            Charset: 'UTF-8',
-            Data: 'TEXT_FORMAT_BODY',
-          },
-        },
-        Subject: {
-          Charset: 'UTF-8',
-          Data: 'Complete registration',
-        },
-      },
-    };
+    const params = emailParams(email, token);
     const sendRegistrationEmail = ses.sendEmail(params).promise();
     sendRegistrationEmail
       .then((data) => {
