@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
-app.get("/", (req, res) => {
+app.get("/api/register", (req, res) => {
   res.json({
     data: "MAIN ROUTE",
   });
