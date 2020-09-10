@@ -88,7 +88,7 @@ exports.emailConfirmationOnRegister = (req, res) => {
         });
       }
 
-      const newUser = new User({ username, name, email, password });
+      const newUser = new User({ username, name, email, password }); // to use req.user
       newUser.save((error, result) => {
         if (error) {
           return res.status(401).json({

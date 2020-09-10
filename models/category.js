@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema;
 
 const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
       trim: true,
-      require: true,
-      max: 12,
+      required: true,
+      max: 32,
     },
     slug: {
       type: String,
@@ -21,7 +22,7 @@ const categorySchema = new mongoose.Schema(
     content: {
       type: {},
       min: 20,
-      max: 200000,
+      max: 2000000,
     },
     postedBy: {
       type: ObjectId,
@@ -30,4 +31,5 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model.model('Category', categorySchema);
+
+module.exports = mongoose.model('Category', categorySchema);
