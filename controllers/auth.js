@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { emailParams } = require('../helpers/emailParams');
+const expressJwt = require('express-jwt');
 require('dotenv').config();
 
 console.log(
@@ -99,6 +100,7 @@ exports.emailConfirmationOnRegister = (req, res) => {
     });
   });
 };
+
 exports.login = (req, res) => {
   const { email, password } = req.body;
   User.findOne({ email }).exec((err, user) => {
@@ -124,4 +126,47 @@ exports.login = (req, res) => {
       user: { _id, name, email, role },
     });
   });
+};
+
+exports.requireAuth = expressJwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ['HS256'],
+});
+
+exports.authMiddleware = (req, res, next) => {
+  const authUserId = req.user._id;
+  User.findOne({ _id: authUserId }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: 'User not found',
+      });
+    }
+    req.profile = user;
+    next();
+  });
+};
+
+exports.adminMiddleware = (req, res, next) => {
+  const adminUserId = req.user._id;
+  User.findOne({ _id: adminUserId }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: 'User not found',
+      });
+    }
+    if (user.role !== 'admin') {
+      return res.status(400).json({
+        error: 'Admin resourse. No access',
+      });
+    }
+
+    req.profile = user;
+    next();
+  });
+};
+
+exports.showProfile = (req, res) => {
+  req.profile.hashed_password = undefined;
+  req.profile.salt = undefined;
+  return res.json(req.profile);
 };
