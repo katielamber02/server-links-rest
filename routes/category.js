@@ -6,7 +6,12 @@ const {
 } = require('../validation/category');
 const { execValidation } = require('../validation');
 const { requireAuth, adminMiddleware } = require('../controllers/auth');
-const { requireAuth, adminMiddleware } = require('../controllers/category');
+const {
+  createCategory,
+  showAllCategories,
+  showSingleCategory,
+  removeCategory,
+} = require('../controllers/category');
 
 router.post(
   '/category',
@@ -28,3 +33,5 @@ router.put(
   createCategory
 );
 router.delete('/category/:slug', requireAuth, adminMiddleware, removeCategory);
+
+module.exports = router;
