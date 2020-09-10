@@ -1,4 +1,4 @@
-exports.emailParams = (email, token) => {
+exports.emailParams = (email, token, name) => {
   return {
     Source: process.env.EMAIL_FROM,
     Destination: {

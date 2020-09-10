@@ -38,7 +38,7 @@ exports.register = (req, res) => {
     );
     console.log('TOKEN1:', token);
 
-    const params = emailParams(email, token);
+    const params = emailParams(email, token, name);
     const sendRegistrationEmail = ses.sendEmail(params).promise();
     sendRegistrationEmail
       .then((data) => {
