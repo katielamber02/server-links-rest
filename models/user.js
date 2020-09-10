@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const crypto = require("crypto");
+const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       require: true,
       max: 12,
-      inique: true,
+      unique: true,
       index: true,
       lowercase: true,
     },
@@ -32,18 +32,18 @@ const userSchema = new mongoose.Schema(
     salt: String,
     role: {
       type: String,
-      default: "subscriber",
+      default: 'subscriber',
     },
     resetPasswordLink: {
       data: String,
-      default: "",
+      default: '',
     },
   },
   { timestamps: true }
 );
 
 userSchema
-  .virtual("password")
+  .virtual('password')
   .set(function (password) {
     this._password = password;
     this.salt = this.makeSalt();
@@ -58,19 +58,19 @@ userSchema.methods = {
     return this.encryptPassword(plainText) === this.hashed_password;
   },
   encryptPassword: function (password) {
-    if (!password) return "";
+    if (!password) return '';
     try {
       return crypto
-        .createHmac("sha1", this.salt)
+        .createHmac('sha1', this.salt)
         .update(password)
-        .digest("hex");
+        .digest('hex');
     } catch (error) {
-      return "";
+      return '';
     }
   },
   makeSalt: function () {
-    return Math.round(new Date().valueOf() * Math.random()) + "";
+    return Math.round(new Date().valueOf() * Math.random()) + '';
   },
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);
