@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { emailParams } = require('../helpers/emailParams');
+const { resetPasswordEmailParams } = require('../helpers/resetPassword');
 const expressJwt = require('express-jwt');
 require('dotenv').config();
 
@@ -170,3 +171,39 @@ exports.showProfile = (req, res) => {
   req.profile.salt = undefined;
   return res.json(req.profile);
 };
+
+exports.forgotPassword = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: `User with this email doens't exist`,
+      });
+    }
+    const token = jwt.sign(
+      { name: user.name },
+      process.env.JWT_RESET_PASSWORD,
+      { expiresIn: '10m' }
+    );
+    const params = resetPasswordEmailParams(email, token);
+
+    return user.updateOne({ resetPasswordLink: token }, (err, success) => {
+      if (err) {
+        return res.status(400).json({
+          error: `Password rest failed, try later`,
+        });
+      }
+      const sendEmail = ses.sendEmail(params).promise();
+      sendEmail
+        .then((data) => {
+          console.log('ses reset password success data: ', data);
+          return res.json({
+            message: `Email has been sent to ${email}. Please, click on the link in order to rests password`,
+          });
+        })
+        .catch((err) => console.log('ses reset password success error: ', err));
+    });
+  });
+};
+
+exports.resetPassword = (req, res) => {};
