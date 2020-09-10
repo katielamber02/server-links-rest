@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { emailParams } = require('../helpers/emailParams');
 const { resetPasswordEmailParams } = require('../helpers/resetPassword');
 const expressJwt = require('express-jwt');
+const _ = require('lodash');
 require('dotenv').config();
 
 console.log(
@@ -206,4 +207,44 @@ exports.forgotPassword = (req, res) => {
   });
 };
 
-exports.resetPassword = (req, res) => {};
+exports.resetPassword = (req, res) => {
+  const { resetPasswordLink, newPassword } = req.body;
+  if (resetPasswordLink) {
+    jwt.verify(
+      resetPasswordLink,
+      process.env.JWT_RESET_PASSWORD,
+      (err, success) => {
+        if (err) {
+          return res.status(400).json({
+            error: 'Link has expired. Try again',
+          });
+        }
+        User.findOne({ resetPasswordLink }).exec((err, user) => {
+          if (err || !user) {
+            return res.status(400).json({
+              error: 'Invalid token. Try again',
+            });
+          }
+          const updatedFields = {
+            password: newPassword,
+            resetPasswirdLink: '',
+          };
+          user = _.extend(user, updatedFields);
+          user.save((err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: 'Password reset failed',
+              });
+            }
+            res.json({
+              message: `Your password has been changed successfully. You can login with the new password.`,
+            });
+          });
+        });
+      }
+    );
+  }
+};
+
+//git rev-parse HEAD
+// 64f3b319d3a1dbf85331b3b42135a52950e7d693
