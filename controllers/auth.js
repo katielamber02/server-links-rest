@@ -58,3 +58,44 @@ exports.register = (req, res) => {
       });
   });
 };
+
+exports.emailConfirmationOnRegister = (req, res) => {
+  const { token } = req.body;
+  // console.log('TOKEN2:', token);
+  jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION, function (
+    error,
+    decodedInfo
+  ) {
+    if (error) {
+      return res.status(401).json({
+        error: 'Expired link. Try again',
+      });
+    }
+
+    const { name, email, password } = jwt.decode(token);
+
+    const username = (
+      Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
+    ).toUpperCase();
+
+    User.findOne({ email }).exec((error, user) => {
+      if (user) {
+        return res.status(401).json({
+          error: 'Email has already been taken',
+        });
+      }
+
+      const newUser = new User({ username, name, email, password });
+      newUser.save((error, result) => {
+        if (error) {
+          return res.status(401).json({
+            error: 'Error saving user in database. Try later',
+          });
+        }
+        return res.json({
+          message: 'Registration success. Please login.',
+        });
+      });
+    });
+  });
+};
