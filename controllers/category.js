@@ -1,7 +1,7 @@
 const Category = require('../models/category');
 const slugify = require('slugify');
 require('dotenv').config();
-const formidable = require('formidable');
+// const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
@@ -13,7 +13,61 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
 });
 
-// Version 1
+// Version 3 base64
+exports.createCategory = (req, res) => {
+  const { name, image, content } = req.body;
+  console.log({ name, image, content });
+
+  const base64Data = new Buffer.from(
+    image.replace(/^data:image\/\w+;base64,/, ''),
+    'base64'
+  );
+  const type = image.split(';')[0].split('/')[1];
+
+  const slug = slugify(name);
+  let category = new Category({ name, content, slug });
+
+  const params = {
+    Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME, // TODO:change policy
+    Key: `category/${uuidv4()}.${type}`,
+    Body: base64Data,
+    ACL: 'public-read',
+    ContentEncoding: 'base64',
+    ContentType: `image/${type}`,
+  };
+  s3.upload(params, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(400).json({ error: 'Upload to s3 failed' });
+    }
+    console.log('AWS UPLOAD RES DATA', data);
+    category.image.url = data.Location;
+    category.image.key = data.Key;
+
+    category.postedBy = req.user._id;
+
+    category.save((err, success) => {
+      if (err) {
+        console.log(err);
+        res.status(400).json({ error: 'Duplicate category' });
+      }
+      return res.json(success);
+    });
+  });
+};
+exports.showAllCategories = (req, res) => {
+  Category.find({}).exec((err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(400).json({ error: 'Categories could not be loaded' });
+    }
+    return res.json(data);
+  });
+};
+exports.showSingleCategory = (req, res) => {};
+exports.removeCategory = (req, res) => {};
+
+// Version 1 image hardcoded
 // exports.createCategory = (req, res) => {
 //   const { name, content } = req.body;
 //   const slug = slugify(name);
@@ -37,54 +91,52 @@ const s3 = new AWS.S3({
 //   });
 // };
 
-exports.createCategory = (req, res) => {
-  let form = new formidable.IncomingForm();
-  form.parse(req, (err, fields, files) => {
-    if (err) {
-      return res.status(400).json({
-        error: 'Image could not upload',
-      });
-    }
-    console.table({ err, fields, files });
-    const { name, content } = fields;
-    const { image } = files;
+// Version 2 form-data
+// exports.createCategory = (req, res) => {
+//   let form = new formidable.IncomingForm();
+//   form.parse(req, (err, fields, files) => {
+//     if (err) {
+//       return res.status(400).json({
+//         error: 'Image could not upload',
+//       });
+//     }
+//     console.table({ err, fields, files });
+//     const { name, content } = fields;
+//     const { image } = files;
 
-    const slug = slugify(name);
-    let category = new Category({ name, content, slug });
+//     const slug = slugify(name);
+//     let category = new Category({ name, content, slug });
 
-    if (image.size > 2000000) {
-      return res.status(400).json({
-        error: 'Image should be less than 2mb',
-      });
-    }
+//     if (image.size > 2000000) {
+//       return res.status(400).json({
+//         error: 'Image should be less than 2mb',
+//       });
+//     }
 
-    const params = {
-      Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME, // TODO:change policy
-      Key: `category/${uuidv4()}`,
-      Body: fs.readFileSync(image.path),
-      ACL: 'public-read',
-      ContentType: `image/jpg`,
-    };
+//     const params = {
+//       Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME, // TODO:change policy
+//       Key: `category/${uuidv4()}`,
+//       Body: fs.readFileSync(image.path),
+//       ACL: 'public-read',
+//       ContentType: `image/jpg`,
+//     };
 
-    s3.upload(params, (err, data) => {
-      if (err) {
-        console.log(err);
-        res.status(400).json({ error: 'Upload to s3 failed' });
-      }
-      console.log('AWS UPLOAD RES DATA', data);
-      category.image.url = data.Location;
-      category.image.key = data.Key;
+//     s3.upload(params, (err, data) => {
+//       if (err) {
+//         console.log(err);
+//         res.status(400).json({ error: 'Upload to s3 failed' });
+//       }
+//       console.log('AWS UPLOAD RES DATA', data);
+//       category.image.url = data.Location;
+//       category.image.key = data.Key;
 
-      category.save((err, success) => {
-        if (err) {
-          console.log(err);
-          res.status(400).json({ error: 'Duplicate category' });
-        }
-        return res.json(success);
-      });
-    });
-  });
-};
-exports.showAllCategories = (req, res) => {};
-exports.showSingleCategory = (req, res) => {};
-exports.removeCategory = (req, res) => {};
+//       category.save((err, success) => {
+//         if (err) {
+//           console.log(err);
+//           res.status(400).json({ error: 'Duplicate category' });
+//         }
+//         return res.json(success);
+//       });
+//     });
+//   });
+// };
