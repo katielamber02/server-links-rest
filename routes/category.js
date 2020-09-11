@@ -15,7 +15,7 @@ const {
 
 router.post(
   '/category',
-  categoryCreateDataValidation,
+  // categoryCreateDataValidation,
   execValidation,
   requireAuth,
   adminMiddleware,
