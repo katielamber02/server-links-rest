@@ -265,6 +265,20 @@ exports.resetPassword = (req, res) => {
     );
   }
 };
-
-//git rev-parse HEAD
-// 64f3b319d3a1dbf85331b3b42135a52950e7d693
+exports.canDeleteAndUpdateLink = (req, res, next) => {
+  const { id } = req.params;
+  Link.findOneAndUpdate({ id: _id }).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Link could not be found',
+      });
+    }
+    let authorizedUser =
+      data.postedBy._id.toString() === req.params._id.toString();
+    if (!authorizedUser) {
+      return res.status(400).json({
+        error: 'You are not authorized',
+      });
+    }
+  });
+};

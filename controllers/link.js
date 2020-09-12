@@ -50,7 +50,7 @@ exports.showAllLinksToAdmin = (req, res) => {
       return res.json(data);
     });
 };
-exports.showSingleLink = (req, res) => {};
+
 exports.updateLink = (req, res) => {
   const { id } = req.params;
   const { title, url, categories, type, medium } = req.body;

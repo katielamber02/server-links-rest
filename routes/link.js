@@ -9,6 +9,7 @@ const {
   requireAuth,
   authMiddleware,
   adminMiddleware,
+  canDeleteAndUpdateLink,
 } = require('../controllers/auth');
 const {
   createLink,
@@ -33,15 +34,30 @@ router.post(
 router.post('/links', requireAuth, adminMiddleware, showAllLinksToAdmin);
 
 router.put('/click-count', clickCount);
-router.get('/link/:slug', showSingleLink);
+
 router.put(
   '/link/:id',
   linkUpdateDataValidation,
   execValidation,
   requireAuth,
   authMiddleware,
+  canDeleteAndUpdateLink,
   updateLink
 );
-router.delete('/link/:id', requireAuth, authMiddleware, removeLink);
-
+router.put(
+  '/link/admin/:id',
+  linkUpdateDataValidation,
+  execValidation,
+  requireAuth,
+  adminMiddleware,
+  updateLink
+);
+router.delete(
+  '/link/:id',
+  requireAuth,
+  authMiddleware,
+  canDeleteAndUpdateLink,
+  removeLink
+);
+router.delete('/link/admin/:id', requireAuth, adminMiddleware, removeLink);
 module.exports = router;
