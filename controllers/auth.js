@@ -5,6 +5,7 @@ const { emailParams } = require('../helpers/emailParams');
 const { resetPasswordEmailParams } = require('../helpers/resetPassword');
 const expressJwt = require('express-jwt');
 const _ = require('lodash');
+const Link = require('../models/link');
 require('dotenv').config();
 
 console.log(
@@ -168,9 +169,28 @@ exports.adminMiddleware = (req, res, next) => {
 };
 
 exports.showProfile = (req, res) => {
-  req.profile.hashed_password = undefined;
-  req.profile.salt = undefined;
-  return res.json(req.profile);
+  // req.profile.hashed_password = undefined;
+  // req.profile.salt = undefined;
+  User.findOne({ _id: req.user._id }).exec((err, user) => {
+    if (err) {
+      return res.status(400).json({
+        error: `User not found`,
+      });
+    }
+    Link.find({ postedBy: user })
+      .populate('categories', 'name slug')
+      .populate('postedBy', 'name')
+      .sort({ createAt: -1 })
+      .exec((err, links) => {
+        if (err) {
+          return res.status(400).json({
+            error: `Could not find links`,
+          });
+        }
+        res.json({ user, links });
+      });
+  });
+  // return res.json(req.profile);
 };
 
 exports.forgotPassword = (req, res) => {

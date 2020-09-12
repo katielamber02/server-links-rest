@@ -26,3 +26,7 @@ exports.requireAuth = expressJwt({
 // HOW TO MAKE PUBLIC ACCESS: https://www.youtube.com/watch?v=FocPPmC12iU
 
 Client warning: Text content did not match. Server: "Login" Client: "myname" in dev mode only
+
+Prettify JSON <Layout>
+<pre>{JSON.stringify(user, undefined, 2)}</pre>
+</Layout>
