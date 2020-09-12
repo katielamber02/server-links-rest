@@ -11,37 +11,36 @@ const linkSchema = new mongoose.Schema(
     },
     url: {
       type: String,
-      lowercase: true,
-      unique: true,
-      index: true,
+      trim: true,
+      required: true,
+      max: 256,
     },
     slug: {
       type: String,
       lowercase: true,
-      unique: true,
+      required: true,
       index: true,
     },
     postedBy: {
       type: ObjectId,
       ref: 'User',
     },
-    categories: {
-      type: ObjectId,
-      ref: 'Category',
-      required: true,
-    },
+    categories: [
+      {
+        type: ObjectId,
+        ref: 'Category',
+        required: true,
+      },
+    ],
     type: {
       type: String,
-      default: 'Free',
+      default: 'free',
     },
     medium: {
       type: String,
-      default: 'Book',
+      default: 'video',
     },
-    clicks: {
-      type: Number,
-      default: 0,
-    },
+    clikes: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
