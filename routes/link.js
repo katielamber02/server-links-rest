@@ -5,14 +5,19 @@ const {
   linkUpdateDataValidation,
 } = require('../validation/link');
 const { execValidation } = require('../validation');
-const { requireAuth, authMiddleware } = require('../controllers/auth');
+const {
+  requireAuth,
+  authMiddleware,
+  adminMiddleware,
+} = require('../controllers/auth');
 const {
   createLink,
-  showAllLinks,
+  // showAllLinks,
   showSingleLink,
   removeLink,
   updateLink,
   clickCount,
+  showAllLinksToAdmin,
 } = require('../controllers/link');
 
 router.post(
@@ -24,7 +29,9 @@ router.post(
   createLink
 );
 
-router.get('/links', showAllLinks);
+// router.get('/links', showAllLinks);
+router.post('/links', requireAuth, adminMiddleware, showAllLinksToAdmin);
+
 router.put('/click-count', clickCount);
 router.get('/link/:slug', showSingleLink);
 router.put(

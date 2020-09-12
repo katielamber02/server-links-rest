@@ -22,15 +22,33 @@ exports.createLink = (req, res) => {
     return res.json(data);
   });
 };
-exports.showAllLinks = (req, res) => {
-  Link.find({}).exec((err, data) => {
-    if (err) {
-      return res.status(400).json({
-        error: 'Error happend when displaying the list of links',
-      });
-    }
-    return res.json(data);
-  });
+// exports.showAllLinks = (req, res) => {
+//   Link.find({}).exec((err, data) => {
+//     if (err) {
+//       return res.status(400).json({
+//         error: 'Error happend when displaying the list of links',
+//       });
+//     }
+//     return res.json(data);
+//   });
+// };
+exports.showAllLinksToAdmin = (req, res) => {
+  let limit = req.body.limit ? parseInt(limit) : 10;
+  let skip = req.body.skip ? parseInt(skip) : 0;
+  Link.find({})
+    .populate('postedBy', 'name')
+    .populate('categories', 'name slug')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .exec((err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Error happend when displaying the list of links',
+        });
+      }
+      return res.json(data);
+    });
 };
 exports.showSingleLink = (req, res) => {};
 exports.updateLink = (req, res) => {
