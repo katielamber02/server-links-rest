@@ -11,8 +11,8 @@ exports.createLink = (req, res) => {
   link.postedBy = req.user._id;
   // console.log(link);
 
-  let arrayOfCategiries = categories && categories.split(',');
-  link.categories = arrayOfCategiries;
+  // let arrayOfCategiries = categories && categories.split(','); // for postman check only
+  // link.categories = arrayOfCategiries;
   link.save((err, data) => {
     if (err) {
       return res.status(400).json({

@@ -1,4 +1,5 @@
 const Category = require('../models/category');
+const Link = require('../models/link');
 const slugify = require('slugify');
 require('dotenv').config();
 // const formidable = require('formidable');
@@ -64,7 +65,35 @@ exports.showAllCategories = (req, res) => {
     return res.json(data);
   });
 };
-exports.showSingleCategory = (req, res) => {};
+exports.showSingleCategory = (req, res) => {
+  const { slug } = req.params;
+  let limit = req.body.limit ? parseInt(limit) : 10;
+  let skip = req.body.skip ? parseInt(skip) : 0;
+  Category.findOne({ slug })
+    .populate('postedBy', '_id name username')
+    .exec((err, categoryData) => {
+      if (err) {
+        console.log(err);
+        res.status(400).json({ error: 'Category could not be found' });
+      }
+      // to show all the links associated to the particular category:
+      Link.find({ categories: categoryData })
+        .populate('postedBy', '_id name username')
+        .populate('categories', 'name')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .exec((err, linkData) => {
+          if (err) {
+            console.log(err);
+            res.status(400).json({
+              error: 'Links associated with this category could not be found',
+            });
+          }
+          return res.json({ categoryData, linkData });
+        });
+    });
+};
 exports.removeCategory = (req, res) => {};
 
 // Version 1 image hardcoded
