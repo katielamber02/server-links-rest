@@ -23,7 +23,7 @@ router.post(
 );
 
 router.get('/categories', showAllCategories);
-router.get('/category/:slug', showSingleCategory);
+router.post('/category/:slug', showSingleCategory);
 router.put(
   '/category/:slug',
   categoryUpadeDataValidation,

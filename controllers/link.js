@@ -35,3 +35,21 @@ exports.showAllLinks = (req, res) => {
 exports.showSingleLink = (req, res) => {};
 exports.updateLink = (req, res) => {};
 exports.removeLink = (req, res) => {};
+
+exports.clickCount = (req, res) => {
+  const { linkId } = req.body;
+  console.log(req.body);
+  console.log('linkId:', linkId);
+  Link.findByIdAndUpdate(
+    linkId,
+    { $inc: { clicks: 1 } },
+    { upsert: true, new: true }
+  ).exec((err, result) => {
+    if (err) {
+      res.status(400).json({
+        erorr: 'Error happend when displaying clicks',
+      });
+    }
+    res.json(result);
+  });
+};

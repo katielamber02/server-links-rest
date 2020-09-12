@@ -12,6 +12,7 @@ const {
   showSingleLink,
   removeLink,
   updateLink,
+  clickCount,
 } = require('../controllers/link');
 
 router.post(
@@ -24,6 +25,7 @@ router.post(
 );
 
 router.get('/links', showAllLinks);
+router.put('/click-count', clickCount);
 router.get('/link/:slug', showSingleLink);
 router.put(
   '/link/:slug',
