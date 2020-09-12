@@ -94,7 +94,88 @@ exports.showSingleCategory = (req, res) => {
         });
     });
 };
-exports.removeCategory = (req, res) => {};
+exports.updateCategory = (req, res) => {
+  const { slug } = req.params;
+  const { name, content, image } = req.body;
+
+  Category.findOneAndUpdate({ slug }, { name, content }, { new: true }).exec(
+    (err, updatedData) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Could not update category',
+        });
+      }
+      console.log('Update:', updatedData);
+      if (image) {
+        const deleteParams = {
+          Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME,
+          Key: `${updatedData.image.key}`,
+        };
+
+        s3.deleteObject(deleteParams, function (err, data) {
+          if (err) console.log('S3 DELETE ERROR DUING', err);
+          else console.log('S3 DELETED DURING', data); // deleted
+        });
+        const params = {
+          Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME, // TODO:change policy
+          Key: `category/${uuidv4()}.${type}`,
+          Body: base64Data,
+          ACL: 'public-read',
+          ContentEncoding: 'base64',
+          ContentType: `image/${type}`,
+        };
+        s3.upload(params, (err, data) => {
+          if (err) {
+            console.log(err);
+            res.status(400).json({ error: 'Upload to s3 failed' });
+          }
+          console.log('AWS UPLOAD RES DATA', data);
+          updatedData.image.url = data.Location;
+          updatedData.image.key = data.Key;
+
+          updatedData.save((err, success) => {
+            if (err) {
+              console.log(err);
+              res.status(400).json({ error: 'Duplicate category' });
+            }
+            res.json(success);
+          });
+        });
+
+        res.json({
+          message: 'Category has been successfully updated',
+        });
+      } else {
+        res.json(updatedData);
+      }
+    }
+  );
+};
+exports.removeCategory = (req, res) => {
+  const { slug } = req.params;
+
+  Category.findOneAndRemove({ slug }).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Could not delete category',
+      });
+    }
+    // remove the existing image from s3 before uploading new/updated one
+    const deleteParams = {
+      Bucket: process.env.MY_PUBLIC_TEMP_BUCKET_NAME,
+      Key: `${data.image.key}`,
+    };
+
+    s3.deleteObject(deleteParams, function (err, data) {
+      if (err) console.log('S3 DELETE ERROR DUING', err);
+      else console.log('S3 DELETED DURING', data); // deleted
+    });
+
+    res.json({
+      message: 'Category has been successfully deleted',
+    });
+  });
+};
 
 // Version 1 image hardcoded
 // exports.createCategory = (req, res) => {

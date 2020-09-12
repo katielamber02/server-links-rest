@@ -10,6 +10,7 @@ const {
   createCategory,
   showAllCategories,
   showSingleCategory,
+  updateCategory,
   removeCategory,
 } = require('../controllers/category');
 
@@ -30,7 +31,7 @@ router.put(
   execValidation,
   requireAuth,
   adminMiddleware,
-  createCategory
+  updateCategory
 );
 router.delete('/category/:slug', requireAuth, adminMiddleware, removeCategory);
 

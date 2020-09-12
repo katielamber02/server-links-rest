@@ -24,3 +24,5 @@ exports.requireAuth = expressJwt({
 // https://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html
 
 // HOW TO MAKE PUBLIC ACCESS: https://www.youtube.com/watch?v=FocPPmC12iU
+
+Client warning: Text content did not match. Server: "Login" Client: "myname" in dev mode only

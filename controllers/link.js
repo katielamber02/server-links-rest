@@ -7,12 +7,12 @@ exports.createLink = (req, res) => {
   const { title, url, categories, type, medium } = req.body;
   console.table({ title, url, categories, type, medium });
   const slug = url;
-  let link = new Link({ title, url, categories, type, medium, slug });
-  link.postedBy = req.user._id;
+  // let link = new Link({ title, url, categories, type, medium, slug });
+  // link.postedBy = req.user._id;
   // console.log(link);
 
-  // let arrayOfCategiries = categories && categories.split(','); // for postman check only
-  // link.categories = arrayOfCategiries;
+  let arrayOfCategiries = categories && categories.split(','); // for postman check only
+  link.categories = arrayOfCategiries;
   link.save((err, data) => {
     if (err) {
       return res.status(400).json({
