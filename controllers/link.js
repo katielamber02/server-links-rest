@@ -33,8 +33,34 @@ exports.showAllLinks = (req, res) => {
   });
 };
 exports.showSingleLink = (req, res) => {};
-exports.updateLink = (req, res) => {};
-exports.removeLink = (req, res) => {};
+exports.updateLink = (req, res) => {
+  const { id } = req.params;
+  const { title, url, categories, type, medium } = req.body;
+  const linkToUpdate = { title, url, categories, type, medium };
+  Link.findOneAndUpdate({ _id: id }, linkToUpdate, { new: true }).exec(
+    (err, updatedLink) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Error happend when updating the list of links',
+        });
+      }
+      res.json(updatedLink);
+    }
+  );
+};
+exports.removeLink = (req, res) => {
+  const { id } = req.params;
+  Link.findOneAndRemove({ _id: id }).exec((err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Error happend when removing the list of links',
+      });
+    }
+    res.json({
+      message: 'Link has been removed successfully',
+    });
+  });
+};
 
 exports.clickCount = (req, res) => {
   const { linkId } = req.body;
