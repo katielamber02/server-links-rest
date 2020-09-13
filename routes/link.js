@@ -14,7 +14,6 @@ const {
 const {
   createLink,
   // showAllLinks,
-  showSingleLink,
   removeLink,
   updateLink,
   clickCount,
@@ -40,8 +39,9 @@ router.put(
   linkUpdateDataValidation,
   execValidation,
   requireAuth,
-  authMiddleware,
   canDeleteAndUpdateLink,
+  authMiddleware,
+
   updateLink
 );
 router.put(
@@ -55,8 +55,9 @@ router.put(
 router.delete(
   '/link/:id',
   requireAuth,
-  authMiddleware,
   canDeleteAndUpdateLink,
+  authMiddleware,
+
   removeLink
 );
 router.delete('/link/admin/:id', requireAuth, adminMiddleware, removeLink);

@@ -28,5 +28,9 @@ exports.requireAuth = expressJwt({
 Client warning: Text content did not match. Server: "Login" Client: "myname" in dev mode only
 
 Prettify JSON <Layout>
+
 <pre>{JSON.stringify(user, undefined, 2)}</pre>
 </Layout>
+
+link id 5f5ca5b24ec4fe1ba4915696
+admin link 5f5dc40dbe1d141978055447
