@@ -25,7 +25,7 @@ const ses = new AWS.SES({ apiVersion: '2010-12-01' });
 
 exports.register = (req, res) => {
   // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/ses-examples-sending-email.html
-  const { name, email, password } = req.body;
+  const { name, email, password, categories } = req.body;
 
   User.findOne({ email }).exec((err, user) => {
     if (user) {
@@ -34,7 +34,7 @@ exports.register = (req, res) => {
       });
     }
     const token = jwt.sign(
-      { name, email, password },
+      { name, email, password, categories },
       process.env.JWT_ACCOUNT_ACTIVATION,
       {
         expiresIn: '10m',
@@ -76,7 +76,7 @@ exports.emailConfirmationOnRegister = (req, res) => {
       });
     }
 
-    const { name, email, password } = jwt.decode(token);
+    const { name, email, password, categories } = jwt.decode(token);
 
     const username = (
       Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
@@ -89,7 +89,7 @@ exports.emailConfirmationOnRegister = (req, res) => {
         });
       }
 
-      const newUser = new User({ username, name, email, password }); // to use req.user
+      const newUser = new User({ username, name, email, password, categories }); // to use req.user
       newUser.save((error, result) => {
         if (error) {
           return res.status(401).json({

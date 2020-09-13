@@ -39,9 +39,9 @@ router.put(
   linkUpdateDataValidation,
   execValidation,
   requireAuth,
-  canDeleteAndUpdateLink,
-  authMiddleware,
 
+  authMiddleware,
+  canDeleteAndUpdateLink,
   updateLink
 );
 router.put(
@@ -55,9 +55,9 @@ router.put(
 router.delete(
   '/link/:id',
   requireAuth,
-  canDeleteAndUpdateLink,
-  authMiddleware,
 
+  authMiddleware,
+  canDeleteAndUpdateLink,
   removeLink
 );
 router.delete('/link/admin/:id', requireAuth, adminMiddleware, removeLink);
